@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  username      String   @unique
+  email         String   @unique
+  passwordHash  String
+  avatar        String?
+  bio           String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  books         Book[]
+  notes         Note[]
+  
+  @@map("users")
+}
+
+model Book {
+  id           Int             @id @default(autoincrement())
+  userId       Int
+  title        String
+  author       String
+  cover        String?
+  publisher    String?
+  publishDate  DateTime?
+  isbn         String?
+  totalPages   Int?
+  status       String          @default("WANT_TO_READ")
+  rating       Int?            @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  
+  user         User            @relation(fields: [userId], references: [id])
+  tags         BookTag[]
+  progress     ReadingProgress[]
+  notes        Note[]
+  
+  @@map("books")
+}
+
+model BookTag {
+  id     Int    @id @default(autoincrement())
+  bookId Int
+  tagId  Int
+  
+  book   Book   @relation(fields: [bookId], references: [id])
+  tag    Tag    @relation(fields: [tagId], references: [id])
+  
+  @@unique([bookId, tagId])
+  @@map("book_tags")
+}
+
+model Note {
+  id          Int             @id @default(autoincrement())
+  bookId      Int
+  userId      Int
+  type        String          @default("QUOTE")
+  content     String
+  pageNumber  Int?
+  isFavorite  Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  
+  book        Book            @relation(fields: [bookId], references: [id])
+  user        User            @relation(fields: [userId], references: [id])
+  tags        NoteTag[]
+  
+  @@map("notes")
+}
+
+model NoteTag {
+  id     Int    @id @default(autoincrement())
+  noteId Int
+  tagId  Int
+  
+  note   Note   @relation(fields: [noteId], references: [id])
+  tag    Tag    @relation(fields: [tagId], references: [id])
+  
+  @@unique([noteId, tagId])
+  @@map("note_tags")
+}
+
+model Tag {
+  id     Int       @id @default(autoincrement())
+  name   String    @unique
+  type   String    @default("BOOK")
+  
+  bookTags BookTag[]
+  noteTags NoteTag[]
+  
+  @@map("tags")
+}
+
+model ReadingProgress {
+  id              Int      @id @default(autoincrement())
+  bookId          Int
+  page            Int?
+  percentage      Float?
+  durationMinutes Int?
+  createdAt       DateTime @default(now())
+  
+  book            Book     @relation(fields: [bookId], references: [id])
+  
+  @@map("reading_progress")
+}
