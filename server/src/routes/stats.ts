@@ -36,17 +36,23 @@ router.get('/', authenticateToken, async (req, res) => {
     const dates = new Set(
       progressRecords.map((p) => new Date(p.createdAt).toDateString())
     )
-    const sortedDates = Array.from(dates).sort()
+    const sortedDates = Array.from(dates).sort((a, b) => 
+      new Date(a).getTime() - new Date(b).getTime()
+    )
     
-    for (let i = sortedDates.length - 1; i >= 0; i--) {
-      const currentDate = new Date(sortedDates[i])
-      const expectedDate = new Date()
-      expectedDate.setDate(expectedDate.getDate() - consecutiveDays)
+    if (sortedDates.length > 0) {
+      const latestDate = new Date(sortedDates[sortedDates.length - 1])
       
-      if (currentDate.toDateString() === expectedDate.toDateString()) {
-        consecutiveDays++
-      } else {
-        break
+      for (let i = sortedDates.length - 1; i >= 0; i--) {
+        const currentDate = new Date(sortedDates[i])
+        const expectedDate = new Date(latestDate)
+        expectedDate.setDate(expectedDate.getDate() - consecutiveDays)
+        
+        if (currentDate.toDateString() === expectedDate.toDateString()) {
+          consecutiveDays++
+        } else {
+          break
+        }
       }
     }
 
