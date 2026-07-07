@@ -21,6 +21,8 @@ model User {
   notes         Note[]
   bookLists     BookList[]
   readingProgress ReadingProgress[]
+  noteSharesAsUser NoteShare[] @relation(name: "NoteShare_user")
+  noteSharesAsSharedUser NoteShare[] @relation(name: "NoteShare_sharedUser")
   
   @@map("users")
 }
@@ -69,12 +71,15 @@ model Note {
   content     String
   pageNumber  Int?
   isFavorite  Boolean         @default(false)
+  isShared    Boolean         @default(false)
+  shareToken  String?         @unique
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   
   book        Book            @relation(fields: [bookId], references: [id])
   user        User            @relation(fields: [userId], references: [id])
   tags        NoteTag[]
+  shares      NoteShare[]
   
   @@map("notes")
 }
@@ -89,6 +94,22 @@ model NoteTag {
   
   @@unique([noteId, tagId])
   @@map("note_tags")
+}
+
+model NoteShare {
+  id            Int      @id @default(autoincrement())
+  noteId        Int
+  userId        Int
+  sharedUserId  Int?
+  shareToken    String   @unique
+  expiresAt     DateTime?
+  createdAt     DateTime @default(now())
+  
+  note          Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [userId], references: [id], name: "NoteShare_user")
+  sharedUser    User?    @relation(fields: [sharedUserId], references: [id], name: "NoteShare_sharedUser")
+  
+  @@map("note_shares")
 }
 
 model Tag {

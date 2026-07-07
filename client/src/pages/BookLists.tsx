@@ -59,8 +59,7 @@ export const BookLists = () => {
         <EmptyState
           title="还没有书单"
           description="创建一个书单来整理你的书籍"
-          actionText="创建书单"
-          onAction={() => setShowCreateModal(true)}
+          action={{ label: '创建书单', onClick: () => setShowCreateModal(true) }}
         />
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

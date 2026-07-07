@@ -60,12 +60,39 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 })
 
+router.get('/share/:token', async (req, res) => {
+  try {
+    const { token } = req.params
+
+    const note = await prisma.note.findUnique({
+      where: { shareToken: token },
+      include: {
+        book: { select: { id: true, title: true, author: true, cover: true } },
+        tags: { include: { tag: true } },
+        user: { select: { id: true, username: true } },
+      },
+    })
+
+    if (!note) {
+      return res.status(404).json({ error: '分享链接不存在或已过期' })
+    }
+
+    if (!note.isShared) {
+      return res.status(403).json({ error: '该笔记已取消分享' })
+    }
+
+    res.json(note)
+  } catch (error) {
+    res.status(500).json({ error: '获取分享笔记失败' })
+  }
+})
+
 router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params
 
     const note = await prisma.note.findUnique({
-      where: { id: Number(id), userId: req.user!.id },
+      where: { id: Number(id) },
       include: {
         book: { select: { id: true, title: true, author: true, cover: true } },
         tags: { include: { tag: true } },
@@ -74,6 +101,20 @@ router.get('/:id', authenticateToken, async (req, res) => {
 
     if (!note) {
       return res.status(404).json({ error: '笔记不存在' })
+    }
+
+    if (note.userId !== req.user!.id) {
+      const isShared = await prisma.noteShare.findFirst({
+        where: {
+          noteId: Number(id),
+          sharedUserId: req.user!.id,
+          expiresAt: { equals: null }
+        },
+      })
+
+      if (!isShared) {
+        return res.status(403).json({ error: '无权访问此笔记' })
+      }
     }
 
     res.json(note)

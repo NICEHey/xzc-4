@@ -15,6 +15,7 @@ import { Stats } from './pages/Stats'
 import { Profile } from './pages/Profile'
 import { BookLists } from './pages/BookLists'
 import { BookListDetail } from './pages/BookListDetail'
+import { ShareNoteView } from './pages/ShareNoteView'
 import { Loading } from './components/Loading'
 import './index.css'
 
@@ -139,6 +140,10 @@ const App = () => {
                   <Profile />
                 </ProtectedRoute>
               }
+            />
+            <Route
+              path="/share/:token"
+              element={<ShareNoteView />}
             />
           </Routes>
         </Layout>

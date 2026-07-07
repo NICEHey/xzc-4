@@ -9,6 +9,7 @@ import progressRouter from './routes/progress'
 import tagsRouter from './routes/tags'
 import statsRouter from './routes/stats'
 import bookListsRouter from './routes/bookLists'
+import sharesRouter from './routes/shares'
 
 dotenv.config()
 
@@ -26,6 +27,7 @@ app.use('/api/progress', progressRouter)
 app.use('/api/tags', tagsRouter)
 app.use('/api/stats', statsRouter)
 app.use('/api/book-lists', bookListsRouter)
+app.use('/api/shares', sharesRouter)
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: '书摘 API 运行正常' })

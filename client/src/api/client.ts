@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { AuthResponse, RegisterInput, LoginInput, User, Book, Note, Tag, Stats, CreateBookInput, CreateNoteInput, ReadingProgress, BookList, PaginatedNotes } from '../types'
+import { AuthResponse, RegisterInput, LoginInput, User, Book, Note, Tag, Stats, CreateBookInput, CreateNoteInput, ReadingProgress, BookList, PaginatedNotes, NoteShare, ShareCreateInput } from '../types'
 
 const API_BASE_URL = 'http://localhost:4000/api'
 
@@ -35,6 +35,7 @@ export const authApi = {
 export const userApi = {
   getMe: () => client.get<User>('/users/me'),
   updateProfile: (data: Partial<User>) => client.put<User>('/users/me', data),
+  search: (username: string) => client.get<User[]>(`/users/search?username=${encodeURIComponent(username)}`),
 }
 
 export const bookApi = {
@@ -87,6 +88,15 @@ export const bookListApi = {
     client.post(`/book-lists/${id}/books`, { bookId }),
   removeBook: (id: number, bookId: number) =>
     client.delete(`/book-lists/${id}/books/${bookId}`),
+}
+
+export const shareApi = {
+  create: (data: ShareCreateInput) => client.post<NoteShare>('/shares', data),
+  getPublic: () => client.get<Note[]>('/shares/public'),
+  getByToken: (token: string) => client.get<NoteShare>(`/shares/${token}`),
+  getByNoteId: (noteId: number) => client.get<NoteShare[]>(`/shares/note/${noteId}`),
+  delete: (token: string) => client.delete(`/shares/${token}`),
+  getNoteByToken: (token: string) => client.get<Note>(`/notes/share/${token}`),
 }
 
 export default client

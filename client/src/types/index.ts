@@ -39,10 +39,13 @@ export interface Note {
   content: string
   pageNumber?: number
   isFavorite: boolean
+  isShared: boolean
+  shareToken?: string
   createdAt: string
   updatedAt: string
   book?: { id: number; title: string; author?: string; cover?: string }
   tags?: { tag: Tag }[]
+  user?: { id: number; username: string }
 }
 
 export interface Tag {
@@ -142,4 +145,24 @@ export interface CreateNoteInput {
   pageNumber?: number
   tags?: string[]
   isFavorite?: boolean
+}
+
+export interface NoteShare {
+  id: number
+  noteId: number
+  userId: number
+  sharedUserId?: number
+  shareToken: string
+  expiresAt?: string
+  createdAt: string
+  note?: Note
+  user?: { id: number; username: string }
+  sharedUser?: { id: number; username: string }
+}
+
+export interface ShareCreateInput {
+  noteId: number
+  isPublic?: boolean
+  sharedUserId?: number
+  expiresAt?: string
 }

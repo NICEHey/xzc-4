@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { noteApi, bookApi, tagApi } from '../api/client'
 import { Note, Book, Tag, NoteType } from '../types'
 import { Loading } from '../components/Loading'
@@ -22,6 +22,7 @@ const getNoteTypeClass = (type: NoteType) => {
 type SortBy = 'updatedAt' | 'createdAt'
 
 export const Notes = () => {
+  const navigate = useNavigate()
   const [notes, setNotes] = useState<Note[]>([])
   const [books, setBooks] = useState<Book[]>([])
   const [tags, setTags] = useState<Tag[]>([])
@@ -183,39 +184,59 @@ export const Notes = () => {
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
           {notes.map((note) => (
-            <Link key={note.id} to={`/notes/${note.id}`} className="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-shadow block">
-              <div className="flex items-start justify-between mb-3">
-                <span className={`px-2 py-1 rounded-full text-xs ${getNoteTypeClass(note.type)}`}>
-                  {noteTypeLabels[note.type]}
-                </span>
-                {note.isFavorite && (
-                  <svg className="w-5 h-5 text-yellow-400 fill-yellow-400" viewBox="0 0 24 24">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                  </svg>
-                )}
-              </div>
-              <p className="text-brown-700 line-clamp-3 mb-3">{note.content}</p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {note.book?.cover ? (
-                    <img src={note.book.cover} alt={note.book.title} className="w-8 h-10 object-cover rounded" />
-                  ) : (
-                    <div className="w-8 h-10 bg-cream-100 rounded flex items-center justify-center">
-                      <svg className="w-4 h-4 text-brown-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            <div key={note.id} className="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-shadow">
+              <Link to={`/notes/${note.id}`} className="block">
+                <div className="flex items-start justify-between mb-3">
+                  <span className={`px-2 py-1 rounded-full text-xs ${getNoteTypeClass(note.type)}`}>
+                    {noteTypeLabels[note.type]}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    {note.isFavorite && (
+                      <svg className="w-5 h-5 text-yellow-400 fill-yellow-400" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                       </svg>
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-sm font-medium text-brown-600">{note.book?.title}</p>
-                    <p className="text-xs text-brown-400">
-                      {note.pageNumber && `P${note.pageNumber} · `}
-                      {new Date(note.createdAt).toLocaleDateString('zh-CN')}
-                    </p>
+                    )}
+                    {note.isShared && (
+                      <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                      </svg>
+                    )}
                   </div>
                 </div>
+                <p className="text-brown-700 line-clamp-3 mb-3">{note.content}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {note.book?.cover ? (
+                      <img src={note.book.cover} alt={note.book.title} className="w-8 h-10 object-cover rounded" />
+                    ) : (
+                      <div className="w-8 h-10 bg-cream-100 rounded flex items-center justify-center">
+                        <svg className="w-4 h-4 text-brown-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-brown-600">{note.book?.title}</p>
+                      <p className="text-xs text-brown-400">
+                        {note.pageNumber && `P${note.pageNumber} · `}
+                        {new Date(note.createdAt).toLocaleDateString('zh-CN')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+              <div className="mt-3 pt-3 border-t border-brown-100 flex justify-end">
+                <button
+                  onClick={() => navigate(`/notes/${note.id}`)}
+                  className="px-3 py-1.5 text-brown-500 hover:text-brown-600 hover:bg-cream-50 rounded-lg text-sm flex items-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
+                  分享
+                </button>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}

@@ -164,7 +164,7 @@ export const BookDetail = () => {
               ))}
             </div>
 
-            {book.bookListBooks?.length > 0 && (
+            {book.bookListBooks && book.bookListBooks.length > 0 && (
               <div className="pt-4">
                 <span className="text-xs text-brown-400 block mb-2">所属书单</span>
                 <div className="flex flex-wrap gap-2">
