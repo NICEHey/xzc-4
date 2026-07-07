@@ -47,7 +47,7 @@ export const bookApi = {
 }
 
 export const noteApi = {
-  getAll: (params?: { bookId?: number; tagId?: number; search?: string; type?: string; isFavorite?: boolean; page?: number; pageSize?: number }) =>
+  getAll: (params?: { bookId?: number; tagId?: number; search?: string; type?: string; isFavorite?: boolean; page?: number; pageSize?: number; sortBy?: string; sortOrder?: string }) =>
     client.get<PaginatedNotes>('/notes', { params }),
   getById: (id: number) => client.get<Note>(`/notes/${id}`),
   create: (data: CreateNoteInput) => client.post<Note>('/notes', data),

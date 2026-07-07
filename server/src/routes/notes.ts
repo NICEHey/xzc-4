@@ -7,7 +7,7 @@ const router = Router()
 
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const { bookId, tagId, search, type, isFavorite, page, pageSize } = req.query as unknown as NoteFilter
+    const { bookId, tagId, search, type, isFavorite, page, pageSize, sortBy, sortOrder } = req.query as unknown as NoteFilter
 
     const where: any = { userId: req.user!.id }
 
@@ -35,12 +35,17 @@ router.get('/', authenticateToken, async (req, res) => {
     const size = Number(pageSize) || 10
     const skip = (pageNum - 1) * size
 
+    const validSortFields: Array<'createdAt' | 'updatedAt'> = ['createdAt', 'updatedAt']
+    const field: 'createdAt' | 'updatedAt' = (sortBy && validSortFields.includes(sortBy)) ? sortBy : 'updatedAt'
+    const direction = sortOrder === 'asc' ? 'asc' : 'desc'
+    const orderBy = { [field]: direction }
+
     const [notes, total] = await Promise.all([
       prisma.note.findMany({
         where,
         skip,
         take: size,
-        orderBy: { createdAt: 'desc' },
+        orderBy,
         include: {
           book: { select: { id: true, title: true, cover: true } },
           tags: { include: { tag: true } },

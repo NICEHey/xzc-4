@@ -99,6 +99,8 @@ export interface NoteFilter {
   isFavorite?: string
   page?: number
   pageSize?: number
+  sortBy?: 'createdAt' | 'updatedAt'
+  sortOrder?: 'asc' | 'desc'
 }
 
 export interface StatsResponse {

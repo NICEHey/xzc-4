@@ -19,6 +19,8 @@ const getNoteTypeClass = (type: NoteType) => {
   }
 }
 
+type SortBy = 'updatedAt' | 'createdAt'
+
 export const Notes = () => {
   const [notes, setNotes] = useState<Note[]>([])
   const [books, setBooks] = useState<Book[]>([])
@@ -32,13 +34,14 @@ export const Notes = () => {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [pageSize] = useState(10)
+  const [sortBy, setSortBy] = useState<SortBy>('updatedAt')
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true)
       try {
         const [notesRes, booksRes, tagsRes] = await Promise.all([
-          noteApi.getAll({ bookId, tagId, search, type: type === 'ALL' ? undefined : type, page, pageSize }),
+          noteApi.getAll({ bookId, tagId, search, type: type === 'ALL' ? undefined : type, page, pageSize, sortBy, sortOrder: 'desc' }),
           bookApi.getAll(),
           tagApi.getAll(),
         ])
@@ -54,11 +57,11 @@ export const Notes = () => {
     }
 
     fetchData()
-  }, [bookId, tagId, search, type, page])
+  }, [bookId, tagId, search, type, page, sortBy])
 
   useEffect(() => {
     setPage(1)
-  }, [bookId, tagId, search, type])
+  }, [bookId, tagId, search, type, sortBy])
 
   useEffect(() => {
     const params: Record<string, string> = {}
@@ -66,8 +69,9 @@ export const Notes = () => {
     if (tagId) params.tagId = tagId.toString()
     if (search) params.search = search
     if (type !== 'ALL') params.type = type
+    if (sortBy) params.sortBy = sortBy
     setSearchParams(params)
-  }, [bookId, tagId, search, type, setSearchParams])
+  }, [bookId, tagId, search, type, sortBy, setSearchParams])
 
   if (loading) {
     return <Loading />
@@ -152,6 +156,18 @@ export const Notes = () => {
                 {tag.name} ({tag.noteCount})
               </button>
             ))}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-brown-400">排序：</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortBy)}
+              className="px-3 py-1.5 border border-brown-200 rounded-lg bg-cream-50 text-sm"
+            >
+              <option value="updatedAt">最新修改</option>
+              <option value="createdAt">最早创建</option>
+            </select>
           </div>
         </div>
       </div>
