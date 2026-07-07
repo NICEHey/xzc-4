@@ -59,6 +59,8 @@ export const noteApi = {
 export const progressApi = {
   create: (data: { bookId: number; page?: number; percentage?: number; durationMinutes?: number }) =>
     client.post<ReadingProgress>('/progress', data),
+  update: (data: { bookId: number; page?: number; percentage?: number; durationMinutes?: number; timestamp?: number }) =>
+    client.put<ReadingProgress>('/progress', data),
   getByBookId: (bookId: number) => client.get<ReadingProgress[]>(`/progress/book/${bookId}`),
 }
 

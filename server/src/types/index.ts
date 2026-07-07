@@ -75,6 +75,14 @@ export interface CreateReadingProgressInput {
   durationMinutes?: number
 }
 
+export interface UpdateReadingProgressInput {
+  bookId: number
+  page?: number
+  percentage?: number
+  durationMinutes?: number
+  timestamp?: number
+}
+
 export interface BookFilter {
   status?: BookStatus | 'ALL'
   tagId?: number

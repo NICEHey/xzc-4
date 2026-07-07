@@ -56,10 +56,12 @@ export interface Tag {
 export interface ReadingProgress {
   id: number
   bookId: number
+  userId: number
   page?: number
   percentage?: number
   durationMinutes?: number
   createdAt: string
+  updatedAt: string
 }
 
 export interface BookList {

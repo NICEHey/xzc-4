@@ -276,7 +276,7 @@ export const BookDetail = () => {
       </div>
 
       {showEditModal && <EditBookModal book={book} onClose={() => setShowEditModal(false)} />}
-      {showProgressModal && <ProgressModal book={book} onClose={() => setShowProgressModal(false)} />}
+      {showProgressModal && <ProgressModal book={book} onClose={() => setShowProgressModal(false)} currentProgress={currentProgress} />}
     </div>
   )
 }
@@ -393,24 +393,37 @@ const EditBookModal = ({ book, onClose }: { book: Book; onClose: () => void }) =
   )
 }
 
-const ProgressModal = ({ book, onClose }: { book: Book; onClose: () => void }) => {
+const ProgressModal = ({ book, onClose, currentProgress }: { book: Book; onClose: () => void; currentProgress?: ReadingProgress }) => {
   const [page, setPage] = useState('')
   const [durationMinutes, setDurationMinutes] = useState('')
+  const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
     try {
       const percentage = book.totalPages && page ? (Number(page) / book.totalPages) * 100 : undefined
-      await progressApi.create({
+      const timestamp = currentProgress?.updatedAt ? new Date(currentProgress.updatedAt).getTime() : undefined
+
+      await progressApi.update({
         bookId: book.id,
         page: page ? Number(page) : undefined,
         percentage,
         durationMinutes: durationMinutes ? Number(durationMinutes) : undefined,
+        timestamp,
       })
       onClose()
       window.location.reload()
-    } catch (error) {
-      console.error('Failed to add progress:', error)
+    } catch (error: any) {
+      if (error.response?.status === 409 && error.response?.data?.error === '进度已过期，请刷新后重试') {
+        setError('进度已过期，请刷新页面后重试')
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000)
+      } else {
+        console.error('Failed to update progress:', error)
+        setError('更新进度失败，请稍后重试')
+      }
     }
   }
 
@@ -426,6 +439,11 @@ const ProgressModal = ({ book, onClose }: { book: Book; onClose: () => void }) =
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          {error && (
+            <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-brown-600 mb-1">当前页码</label>
             <input type="number" value={page} onChange={(e) => setPage(e.target.value)} className="w-full px-3 py-2 border border-brown-200 rounded-lg bg-cream-50" placeholder={`1 - ${book.totalPages}`} />
