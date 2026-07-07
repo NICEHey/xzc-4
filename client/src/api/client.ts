@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { AuthResponse, RegisterInput, LoginInput, User, Book, Note, Tag, Stats, CreateBookInput, CreateNoteInput, ReadingProgress, BookList } from '../types'
+import { AuthResponse, RegisterInput, LoginInput, User, Book, Note, Tag, Stats, CreateBookInput, CreateNoteInput, ReadingProgress, BookList, PaginatedNotes } from '../types'
 
 const API_BASE_URL = 'http://localhost:4000/api'
 
@@ -47,8 +47,8 @@ export const bookApi = {
 }
 
 export const noteApi = {
-  getAll: (params?: { bookId?: number; tagId?: number; search?: string; type?: string; isFavorite?: boolean }) =>
-    client.get<Note[]>('/notes', { params }),
+  getAll: (params?: { bookId?: number; tagId?: number; search?: string; type?: string; isFavorite?: boolean; page?: number; pageSize?: number }) =>
+    client.get<PaginatedNotes>('/notes', { params }),
   getById: (id: number) => client.get<Note>(`/notes/${id}`),
   create: (data: CreateNoteInput) => client.post<Note>('/notes', data),
   update: (id: number, data: Partial<CreateNoteInput>) => client.put<Note>(`/notes/${id}`, data),

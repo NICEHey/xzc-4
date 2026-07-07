@@ -89,6 +89,8 @@ export interface NoteFilter {
   search?: string
   type?: NoteType
   isFavorite?: string
+  page?: number
+  pageSize?: number
 }
 
 export interface StatsResponse {

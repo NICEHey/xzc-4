@@ -29,16 +29,21 @@ export const Notes = () => {
   const [bookId, setBookId] = useState(searchParams.get('bookId') ? Number(searchParams.get('bookId')) : undefined)
   const [tagId, setTagId] = useState(searchParams.get('tagId') ? Number(searchParams.get('tagId')) : undefined)
   const [type, setType] = useState<NoteType | 'ALL'>((searchParams.get('type') as NoteType) || 'ALL')
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [pageSize] = useState(10)
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true)
       try {
         const [notesRes, booksRes, tagsRes] = await Promise.all([
-          noteApi.getAll({ bookId, tagId, search, type: type === 'ALL' ? undefined : type }),
+          noteApi.getAll({ bookId, tagId, search, type: type === 'ALL' ? undefined : type, page, pageSize }),
           bookApi.getAll(),
           tagApi.getAll(),
         ])
-        setNotes(notesRes.data)
+        setNotes(notesRes.data.data)
+        setTotal(notesRes.data.total)
         setBooks(booksRes.data)
         setTags(tagsRes.data)
       } catch (error) {
@@ -49,6 +54,10 @@ export const Notes = () => {
     }
 
     fetchData()
+  }, [bookId, tagId, search, type, page])
+
+  useEffect(() => {
+    setPage(1)
   }, [bookId, tagId, search, type])
 
   useEffect(() => {
@@ -147,12 +156,12 @@ export const Notes = () => {
         </div>
       </div>
 
-      <div className="text-sm text-brown-400">共 {notes.length} 条笔记</div>
+      <div className="text-sm text-brown-400">共 {total} 条笔记</div>
 
       {notes.length === 0 ? (
         <EmptyState
-          title="暂无笔记"
-          description="记录你的第一个读书笔记吧"
+          title={search ? '未找到匹配的笔记' : '暂无笔记'}
+          description={search ? '尝试使用其他关键词搜索' : '记录你的第一个读书笔记吧'}
           action={{ label: '写笔记', onClick: () => document.getElementById('add-note-modal')?.classList.remove('hidden') }}
         />
       ) : (
@@ -194,6 +203,26 @@ export const Notes = () => {
           ))}
         </div>
       )}
+
+      <div className="flex items-center justify-center mt-6">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="px-3 py-1.5 border border-brown-200 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-cream-50"
+          >
+            上一页
+          </button>
+          <span className="text-sm text-brown-500">第 {page} 页 / 共 {Math.ceil(total / pageSize)} 页</span>
+          <button
+            onClick={() => setPage(p => Math.min(Math.ceil(total / pageSize), p + 1))}
+            disabled={page >= Math.ceil(total / pageSize)}
+            className="px-3 py-1.5 border border-brown-200 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-cream-50"
+          >
+            下一页
+          </button>
+        </div>
+      </div>
 
       <AddNoteModal onClose={() => {
         document.getElementById('add-note-modal')?.classList.add('hidden')

@@ -86,6 +86,13 @@ export interface BookListBook {
   book?: Book
 }
 
+export interface PaginatedNotes {
+  data: Note[]
+  total: number
+  page: number
+  pageSize: number
+}
+
 export interface Stats {
   thisYearFinished: number
   readingNow: number

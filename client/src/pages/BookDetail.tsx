@@ -33,11 +33,11 @@ export const BookDetail = () => {
       try {
         const [bookRes, notesRes, progressRes] = await Promise.all([
           bookApi.getById(Number(id)),
-          noteApi.getAll({ bookId: Number(id) }),
+          noteApi.getAll({ bookId: Number(id), pageSize: 1000 }),
           progressApi.getByBookId(Number(id)),
         ])
         setBook(bookRes.data)
-        setNotes(notesRes.data)
+        setNotes(notesRes.data.data)
         setProgress(progressRes.data)
       } catch (error) {
         console.error('Failed to fetch book detail:', error)

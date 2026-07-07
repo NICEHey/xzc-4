@@ -31,10 +31,10 @@ export const BookNotes = () => {
       try {
         const [bookRes, notesRes] = await Promise.all([
           bookApi.getById(Number(id)),
-          noteApi.getAll({ bookId: Number(id) }),
+          noteApi.getAll({ bookId: Number(id), pageSize: 1000 }),
         ])
         setBook(bookRes.data)
-        setNotes(notesRes.data)
+        setNotes(notesRes.data.data)
       } catch (error) {
         console.error('Failed to fetch book notes:', error)
       } finally {

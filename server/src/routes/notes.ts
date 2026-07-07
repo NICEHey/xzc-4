@@ -7,7 +7,7 @@ const router = Router()
 
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    const { bookId, tagId, search, type, isFavorite } = req.query as unknown as NoteFilter
+    const { bookId, tagId, search, type, isFavorite, page, pageSize } = req.query as unknown as NoteFilter
 
     const where: any = { userId: req.user!.id }
 
@@ -31,16 +31,25 @@ router.get('/', authenticateToken, async (req, res) => {
       where.isFavorite = isFavorite === 'true'
     }
 
-    const notes = await prisma.note.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        book: { select: { id: true, title: true, cover: true } },
-        tags: { include: { tag: true } },
-      },
-    })
+    const pageNum = Number(page) || 1
+    const size = Number(pageSize) || 10
+    const skip = (pageNum - 1) * size
 
-    res.json(notes)
+    const [notes, total] = await Promise.all([
+      prisma.note.findMany({
+        where,
+        skip,
+        take: size,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          book: { select: { id: true, title: true, cover: true } },
+          tags: { include: { tag: true } },
+        },
+      }),
+      prisma.note.count({ where }),
+    ])
+
+    res.json({ data: notes, total, page: pageNum, pageSize: size })
   } catch (error) {
     res.status(500).json({ error: '获取笔记列表失败' })
   }

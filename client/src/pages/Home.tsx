@@ -17,12 +17,12 @@ export const Home = () => {
         const [statsRes, booksRes, notesRes] = await Promise.all([
           statsApi.get(),
           bookApi.getAll({ status: 'READING', sortBy: 'updatedAt', sortOrder: 'desc' }),
-          noteApi.getAll({}),
+          noteApi.getAll({ pageSize: 1000 }),
         ])
 
         setStats(statsRes.data)
         setReadingBooks(booksRes.data)
-        setRecentNotes(notesRes.data.slice(0, 5))
+        setRecentNotes(notesRes.data.data.slice(0, 5))
       } catch (error) {
         console.error('Failed to fetch home data:', error)
       } finally {
