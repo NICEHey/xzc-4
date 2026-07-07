@@ -50,7 +50,7 @@ export const BookDetail = () => {
   }, [id])
 
   const handleDelete = async () => {
-    if (confirm('确定要删除这本书吗？')) {
+    if (confirm('确定要删除这本书吗？删除后，与该书关联的所有笔记和阅读记录也将被一并删除，此操作不可恢复。')) {
       try {
         await bookApi.delete(Number(id))
         navigate('/books')

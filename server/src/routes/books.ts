@@ -160,7 +160,12 @@ router.delete('/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: '书籍不存在' })
     }
 
-    await prisma.book.delete({ where: { id: Number(id) } })
+    await prisma.$transaction([
+      prisma.note.deleteMany({ where: { bookId: Number(id) } }),
+      prisma.readingProgress.deleteMany({ where: { bookId: Number(id) } }),
+      prisma.bookTag.deleteMany({ where: { bookId: Number(id) } }),
+      prisma.book.delete({ where: { id: Number(id) } }),
+    ])
 
     res.json({ message: '删除成功' })
   } catch (error) {
