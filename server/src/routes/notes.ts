@@ -125,6 +125,13 @@ router.put('/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: '笔记不存在' })
     }
 
+    const rawTags = req.body.tags as string[] | string | undefined
+    const normalizedTags = rawTags === undefined 
+      ? undefined 
+      : Array.isArray(rawTags)
+        ? rawTags.filter(Boolean)
+        : rawTags.split(',').map((t: string) => t.trim()).filter(Boolean)
+    
     const note = await prisma.note.update({
       where: { id: Number(id) },
       data: {
@@ -132,10 +139,10 @@ router.put('/:id', authenticateToken, async (req, res) => {
         content,
         pageNumber,
         isFavorite,
-        tags: tags
+        tags: normalizedTags !== undefined
           ? {
               deleteMany: {},
-              create: tags.map((tagName) => ({
+              create: normalizedTags.map((tagName: string) => ({
                 tag: { connectOrCreate: { where: { name: tagName }, create: { name: tagName, type: 'NOTE' } } },
               })),
             }
