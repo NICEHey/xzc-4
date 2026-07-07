@@ -35,6 +35,7 @@ router.get('/', authenticateToken, async (req, res) => {
         tags: { include: { tag: true } },
         notes: { select: { id: true } },
         progress: { orderBy: { createdAt: 'desc' }, take: 1 },
+        bookListBooks: { include: { bookList: { select: { id: true, name: true } } } },
       },
     })
 
@@ -54,6 +55,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
         tags: { include: { tag: true } },
         notes: { select: { id: true } },
         progress: { orderBy: { createdAt: 'desc' } },
+        bookListBooks: { include: { bookList: { select: { id: true, name: true } } } },
       },
     })
 
@@ -164,6 +166,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
       prisma.note.deleteMany({ where: { bookId: Number(id) } }),
       prisma.readingProgress.deleteMany({ where: { bookId: Number(id) } }),
       prisma.bookTag.deleteMany({ where: { bookId: Number(id) } }),
+      prisma.bookListBook.deleteMany({ where: { bookId: Number(id) } }),
       prisma.book.delete({ where: { id: Number(id) } }),
     ])
 

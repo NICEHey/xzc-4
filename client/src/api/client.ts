@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { AuthResponse, RegisterInput, LoginInput, User, Book, Note, Tag, Stats, CreateBookInput, CreateNoteInput, ReadingProgress } from '../types'
+import { AuthResponse, RegisterInput, LoginInput, User, Book, Note, Tag, Stats, CreateBookInput, CreateNoteInput, ReadingProgress, BookList } from '../types'
 
 const API_BASE_URL = 'http://localhost:4000/api'
 
@@ -70,6 +70,21 @@ export const tagApi = {
 
 export const statsApi = {
   get: () => client.get<Stats>('/stats'),
+}
+
+export const bookListApi = {
+  getAll: () => client.get<BookList[]>('/book-lists'),
+  getById: (id: number) => client.get<BookList>(`/book-lists/${id}`),
+  getPublic: () => client.get<BookList[]>('/book-lists/public'),
+  create: (data: { name: string; description?: string; isPublic?: boolean; cover?: string }) =>
+    client.post<BookList>('/book-lists', data),
+  update: (id: number, data: Partial<{ name: string; description?: string; isPublic?: boolean; cover?: string }>) =>
+    client.put<BookList>(`/book-lists/${id}`, data),
+  delete: (id: number) => client.delete(`/book-lists/${id}`),
+  addBook: (id: number, bookId: number) =>
+    client.post(`/book-lists/${id}/books`, { bookId }),
+  removeBook: (id: number, bookId: number) =>
+    client.delete(`/book-lists/${id}/books/${bookId}`),
 }
 
 export default client

@@ -164,6 +164,23 @@ export const BookDetail = () => {
               ))}
             </div>
 
+            {book.bookListBooks?.length > 0 && (
+              <div className="pt-4">
+                <span className="text-xs text-brown-400 block mb-2">所属书单</span>
+                <div className="flex flex-wrap gap-2">
+                  {book.bookListBooks.map((blb) => (
+                    <Link
+                      key={blb.bookList.id}
+                      to={`/book-lists/${blb.bookList.id}`}
+                      className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-sm hover:bg-blue-100 transition-colors"
+                    >
+                      {blb.bookList.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-brown-100">
               <div>
                 <span className="text-xs text-brown-400">出版社</span>

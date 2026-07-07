@@ -13,6 +13,8 @@ import { Notes } from './pages/Notes'
 import { NoteDetail } from './pages/NoteDetail'
 import { Stats } from './pages/Stats'
 import { Profile } from './pages/Profile'
+import { BookLists } from './pages/BookLists'
+import { BookListDetail } from './pages/BookListDetail'
 import { Loading } from './components/Loading'
 import './index.css'
 
@@ -87,6 +89,22 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <BookNotes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/book-lists"
+              element={
+                <ProtectedRoute>
+                  <BookLists />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/book-lists/:id"
+              element={
+                <ProtectedRoute>
+                  <BookListDetail />
                 </ProtectedRoute>
               }
             />

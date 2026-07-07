@@ -17,6 +17,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const navItems = [
     { path: '/', label: '首页' },
     { path: '/books', label: '书架' },
+    { path: '/book-lists', label: '书单' },
     { path: '/notes', label: '笔记' },
     { path: '/stats', label: '统计' },
     { path: '/profile', label: '我的' },

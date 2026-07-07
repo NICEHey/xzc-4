@@ -28,6 +28,7 @@ export interface Book {
   tags?: { tag: Tag }[]
   notes?: { id: number }[]
   progress?: ReadingProgress[]
+  bookListBooks?: { bookList: { id: number; name: string } }[]
 }
 
 export interface Note {
@@ -59,6 +60,30 @@ export interface ReadingProgress {
   percentage?: number
   durationMinutes?: number
   createdAt: string
+}
+
+export interface BookList {
+  id: number
+  userId: number
+  name: string
+  description?: string
+  isPublic: boolean
+  cover?: string
+  createdAt: string
+  updatedAt: string
+  bookCount?: number
+  books?: Book[]
+  user?: { id: number; username: string }
+}
+
+export interface BookListBook {
+  id: number
+  bookListId: number
+  bookId: number
+  orderIndex: number
+  createdAt: string
+  bookList?: { id: number; name: string }
+  book?: Book
 }
 
 export interface Stats {
