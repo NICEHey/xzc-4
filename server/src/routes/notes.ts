@@ -90,6 +90,7 @@ router.get('/share/:token', async (req, res) => {
 router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params
+    const { fullContent } = req.query as { fullContent?: string }
 
     const note = await prisma.note.findUnique({
       where: { id: Number(id) },
@@ -117,7 +118,16 @@ router.get('/:id', authenticateToken, async (req, res) => {
       }
     }
 
-    res.json(note)
+    const contentLength = note.content.length
+    const contentPreview = note.content.slice(0, 500)
+    const shouldReturnFullContent = fullContent === 'true'
+
+    res.json({
+      ...note,
+      content: shouldReturnFullContent ? note.content : contentPreview,
+      contentPreview,
+      contentLength,
+    })
   } catch (error) {
     res.status(500).json({ error: '获取笔记详情失败' })
   }

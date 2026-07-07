@@ -25,12 +25,15 @@ export const NoteDetail = () => {
   const [loading, setLoading] = useState(true)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
+  const [fullContentLoaded, setFullContentLoaded] = useState(false)
+  const [fullContentLoading, setFullContentLoading] = useState(false)
 
   useEffect(() => {
     const fetchNote = async () => {
       try {
-        const res = await noteApi.getById(Number(id))
+        const res = await noteApi.getById(Number(id), { fullContent: false })
         setNote(res.data)
+        setFullContentLoaded(false)
       } catch (error) {
         console.error('Failed to fetch note:', error)
       } finally {
@@ -39,6 +42,37 @@ export const NoteDetail = () => {
     }
     fetchNote()
   }, [id])
+
+  const handleLoadFullContent = async () => {
+    if (fullContentLoading) return
+    setFullContentLoading(true)
+    try {
+      const res = await noteApi.getById(Number(id), { fullContent: true })
+      setNote(res.data)
+      setFullContentLoaded(true)
+    } catch (error) {
+      console.error('Failed to fetch full content:', error)
+    } finally {
+      setFullContentLoading(false)
+    }
+  }
+
+  const handleOpenEditModal = async () => {
+    if (!fullContentLoaded) {
+      setFullContentLoading(true)
+      try {
+        const res = await noteApi.getById(Number(id), { fullContent: true })
+        setNote(res.data)
+        setFullContentLoaded(true)
+      } catch (error) {
+        console.error('Failed to fetch full content:', error)
+        return
+      } finally {
+        setFullContentLoading(false)
+      }
+    }
+    setShowEditModal(true)
+  }
 
   const handleDelete = async () => {
     if (confirm('确定要删除这条笔记吗？')) {
@@ -95,7 +129,7 @@ export const NoteDetail = () => {
             </svg>
             分享
           </button>
-          <button onClick={() => setShowEditModal(true)} className="px-3 py-1.5 border border-brown-200 text-brown-600 rounded-lg hover:bg-cream-50 text-sm">
+          <button onClick={handleOpenEditModal} disabled={fullContentLoading} className="px-3 py-1.5 border border-brown-200 text-brown-600 rounded-lg hover:bg-cream-50 text-sm disabled:opacity-50">
             编辑
           </button>
           <button onClick={handleDelete} className="px-3 py-1.5 text-red-500 hover:text-red-600 text-sm">
@@ -144,6 +178,33 @@ export const NoteDetail = () => {
 
           <div className="bg-cream-50 rounded-xl p-6 mb-6">
             <p className="text-brown-700 leading-relaxed whitespace-pre-wrap">{note.content}</p>
+            {note.contentLength && note.contentLength > 500 && !fullContentLoaded && (
+              <div className="mt-4 flex items-center justify-between">
+                <span className="text-sm text-brown-400">共 {note.contentLength} 字</span>
+                <button
+                  onClick={handleLoadFullContent}
+                  disabled={fullContentLoading}
+                  className="text-brown-500 hover:text-brown-600 text-sm flex items-center gap-1"
+                >
+                  {fullContentLoading ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      加载中...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                      展开全文
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-4">

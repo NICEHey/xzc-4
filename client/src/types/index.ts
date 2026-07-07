@@ -37,6 +37,8 @@ export interface Note {
   userId: number
   type: NoteType
   content: string
+  contentPreview?: string
+  contentLength?: number
   pageNumber?: number
   isFavorite: boolean
   isShared: boolean
